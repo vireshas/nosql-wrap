@@ -1,4 +1,10 @@
-package nosqlorm
+package mantle
+
+import (
+        "string"
+        "./backends/redis"
+        "./backends/memcache"
+)
 
 type Mantle interface{
         Connect()
@@ -9,17 +15,30 @@ type Mantle interface{
         Expire(keys ...interface{}) bool
 }
 
+type Orm struct{
+        driver string
+        host string
+        port string
+}
 
-/*
+func (o *Orm) Get() interface{}{
+        if o.driver == "memcache" {
+                return &Mantle{&Memcache{o.host, o.port}}
+        }else{
+                return &Mantle{&Redis{o.host, o.port}}
+        }
+}
+
 
 func main(){
-        driver := Mantle{Redis{host:"localhost", port:"6379"}}
+        driver := &Orm{}
+        driver.Get()
+        /*
         connection = driver.Connect()
         connection.Get("key") //returns value
         connection.Set("key", "value") //returns true or false
         connection.MGet(["key1", "key2", "key3"]) // returns map of k v
         connection.MSet(["key"]"value") //returns true or false
+        */
 }
 
-
-*/
