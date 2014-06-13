@@ -2,11 +2,11 @@ package mantle
 
 import (
         "github.com/vireshas/mantle/backends/redis"
-	"fmt"
 )
 
 type Mantle interface {
 	//Configure()
+
         Get(key string) string
         Set(key string, value interface{}) bool
         //MGet(key ...interface{}) map[interface{}]interface{}
@@ -16,15 +16,14 @@ type Mantle interface {
 
 
 type Orm struct {
-        driver string
+        Driver string
         Host string
         Port string
 }
 
 func (o *Orm) Get() Mantle {
-        if o.driver == "" {
+        if o.Driver == "" {
 		redis := &mantle.Redis{Host : "", Port : ""}
-		fmt.Printf("HELLO  %#s", redis)
 		redis.Configure()
                 return Mantle(redis)
         }else{
