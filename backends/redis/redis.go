@@ -4,7 +4,6 @@ import (
         "github.com/garyburd/redigo/redis"
         pool "github.com/vireshas/mantle/backends/redis/pool"
         "time"
-	"fmt"
 )
 
 type Redis struct{
@@ -22,9 +21,7 @@ func (r *Redis) SetDefaults(){
 }
 
 func (r *Redis) Configure(){
-	fmt.Println("Configure")
-       r.SetDefaults()
-	fmt.Println("Configure TRUE")
+        r.SetDefaults()
 }
 
 func (r *Redis) GetClient() (*pool.RedisConn, error){
@@ -35,28 +32,23 @@ func (r *Redis) PutClient(c *pool.RedisConn){
         r.pool.PutConn(c)
 }
 
-func (r *Redis) Get(key string) string{
+func (r *Redis) execute(cmd string, args ...interface{}) (interface{}, error){
         client, err := r.GetClient()
         if err != nil {
-                return "Client Error"
+                return nil, err
         }
         defer r.PutClient(client)
+        return client.Do(cmd, args...)
+}
 
-        value, err := redis.String(client.Do("GET", key))
-        if err != nil {
-                return "Key not found!"
-        }
+func (r *Redis) Get(key string) string{
+        value, err := redis.String(r.execute("GET", key))
+        if err != nil { return "Key not found!" }
         return value
 }
 
 func (r *Redis) Set(key string, value interface{}) bool{
-        client, err := r.GetClient()
-        if err != nil {
-                return false 
-        }
-        defer r.PutClient(client)
-
-        _, redis_err := client.Do("SET", key, value)
+        _, redis_err := r.execute("SET", key, value)
         if redis_err != nil {
                 return false
         }
