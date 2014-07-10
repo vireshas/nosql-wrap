@@ -12,6 +12,5 @@ Wrapper for nosql dbs.
         func main(){
                 orm := mantle.Orm{}
                 connection := orm.Get()
-                connection.Connect()
                 fmt.Println(connection.Get("key"))
         }
