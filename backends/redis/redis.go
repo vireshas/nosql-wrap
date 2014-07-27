@@ -1,46 +1,49 @@
-package main
+package mantle
 
 import (
         "github.com/garyburd/redigo/redis"
-        "fmt"
-        //"reflect"
 )
 
 type Redis struct{
-        host string
-        port string
-        client redis.Conn
+        Host string
+        Port string
+        Client redis.Conn
 }
 
 func (r *Redis) SetDefaults(){
-        if r.host == "" { r.host = "localhost" }
-        if r.port == "" { r.port = "6379" }
+        if r.Host == "" { r.Host = "localHost" }
+        if r.Port == "" { r.Port = "6379" }
 }
 
 func (r *Redis) Connect(){
-        //use default host and port
+        //use default Host and Port
         r.SetDefaults()
 
-        r.client, _ := redis.Dial("tcp", r.host + ":" + r.port)
+        cli, err := redis.Dial("tcp", r.Host + ":" + r.Port)
+        if err != nil {
+                cli = nil
+        }
+        r.Client = cli
 }
 
 func (r *Redis) Get(key string) string{
-        value, err := redis.String(r.client.Do("GET", key))
+        value, err := redis.String(r.Client.Do("GET", key))
         if err != nil {
-                fmt.Println(err)
+                //fmt.Println(err)
                 return "Key not found!"
         }
         return value
 }
 
 func (r *Redis) Set(key string, value interface{}) bool{
-        _, err := r.client.Do("SET", key, value)
+        _, err := r.Client.Do("SET", key, value)
         if err != nil {
                 return false
         }
         return true
 }
 
+/*
 func main(){
 
         r := &Redis{}
@@ -50,7 +53,6 @@ func main(){
         fmt.Println(r.Get("colll1"))
 }
 
-/*
 
 
 func (r *Redis) MGet(keys ..interface{}) map[interface{}]interface{}{
