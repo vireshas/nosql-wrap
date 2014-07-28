@@ -2,8 +2,6 @@ package mantle
 
 import (
         "github.com/vireshas/mantle/backends/redis"
-        //"./backends/memcache"
-        //"fmt"
 )
 
 type Mantle interface{
@@ -29,21 +27,3 @@ func (o *Orm) Get() Mantle{
                 return Mantle(&mantle.Redis{Host : "", Port : ""})
         }
 }
-
-
-/*
-func main(){
-        orm := &Orm{Host: "", Port: ""}
-        driver := orm.Get()
-        driver.Connect()
-        driver.Set("key", "value")
-        fmt.Println(driver.Get("key"))
-        driver.Set("key", "value1")
-        fmt.Println(driver.Get("key"))
-        connection = driver.Connect()
-        connection.Get("key") //returns value
-        connection.Set("key", "value") //returns true or false
-        connection.MGet(["key1", "key2", "key3"]) // returns map of k v
-        connection.MSet(["key"]"value") //returns true or false
-}
-*/
