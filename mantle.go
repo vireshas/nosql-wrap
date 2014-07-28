@@ -1,44 +1,49 @@
-package mantle
+package main
 
 import (
-        "string"
         "./backends/redis"
-        "./backends/memcache"
+        //"./backends/memcache"
+        "fmt"
 )
 
 type Mantle interface{
         Connect()
-        Get(key interface{}) interface{}
-        Set(key interface{}, value interface{}) bool
-        MGet(key ...interface{}) map[interface{}]interface{}
-        MSet(k_v_map map[interface{}]interface{}) bool
-        Expire(keys ...interface{}) bool
+        Get(key string) string
+        Set(key string, value interface{}) bool
+        //MGet(key ...interface{}) map[interface{}]interface{}
+        //MSet(k_v_map map[interface{}]interface{}) bool
+        //Expire(keys ...interface{}) bool
 }
+
 
 type Orm struct{
         driver string
-        host string
-        port string
+        Host string
+        Port string
 }
 
-func (o *Orm) Get() interface{}{
-        if o.driver == "memcache" {
-                return &Mantle{&Memcache{o.host, o.port}}
+func (o *Orm) Get() Mantle{
+        if o.driver == "" {
+                return Mantle(&mantle.Redis{Host : "", Port : ""})
         }else{
-                return &Mantle{&Redis{o.host, o.port}}
+                return Mantle(&mantle.Redis{Host : "", Port : ""})
         }
 }
 
 
 func main(){
-        driver := &Orm{}
-        driver.Get()
-        /*
+        orm := &Orm{Host: "", Port: ""}
+        driver := orm.Get()
+        driver.Connect()
+        driver.Set("key", "value")
+        fmt.Println(driver.Get("key"))
+        driver.Set("key", "value1")
+        fmt.Println(driver.Get("key"))
+/*
         connection = driver.Connect()
         connection.Get("key") //returns value
         connection.Set("key", "value") //returns true or false
         connection.MGet(["key1", "key2", "key3"]) // returns map of k v
         connection.MSet(["key"]"value") //returns true or false
-        */
+*/
 }
-
