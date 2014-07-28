@@ -1,9 +1,9 @@
 package mantle
 
 import (
-        "./backends/redis"
+        "github.com/vireshas/mantle/backends/redis"
         //"./backends/memcache"
-        "fmt"
+        //"fmt"
 )
 
 type Mantle interface{
