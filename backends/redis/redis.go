@@ -1,27 +1,30 @@
-package main
+package mantle
 
 import (
         "github.com/garyburd/redigo/redis"
-        "github.com/vireshas/mantle/backends/redis/pool"
+        pool "github.com/vireshas/mantle/backends/redis/pool"
         "time"
+	"fmt"
 )
 
 type Redis struct{
         Host string
         Port string
         Capacity int
-        pool redis_pool.RedisPool
+        pool *pool.RedisPool
 }
 
 func (r *Redis) SetDefaults(){
         if r.Host == "" { r.Host = "localHost" }
         if r.Port == "" { r.Port = "6379" }
         if r.Capacity == 0 { r.Capacity = 10 }
-        if r.pool == nil { pool.NewPool( r, r.Capacity, r.Capacity, time.Minute ) }
+        r.pool = pool.NewPool( r.Host, r.Port, r.Capacity, r.Capacity, time.Minute )
 }
 
 func (r *Redis) Configure(){
+	fmt.Println("Configure")
        r.SetDefaults()
+	fmt.Println("Configure TRUE")
 }
 
 func (r *Redis) GetClient() (*pool.RedisConn, error){
@@ -37,7 +40,7 @@ func (r *Redis) Get(key string) string{
         if err != nil {
                 return "Client Error"
         }
-        defer r.pool.PutClient(client)
+        defer r.PutClient(client)
 
         value, err := redis.String(client.Do("GET", key))
         if err != nil {
@@ -47,20 +50,21 @@ func (r *Redis) Get(key string) string{
 }
 
 func (r *Redis) Set(key string, value interface{}) bool{
-        client, err := r.pool.GetClient()
+        client, err := r.GetClient()
         if err != nil {
-                return "Client Error"
+                return false 
         }
-        defer r.pool.PutClient(client)
+        defer r.PutClient(client)
 
-        _, err := client.Do("SET", key, value)
-        if err != nil {
+        _, redis_err := client.Do("SET", key, value)
+        if redis_err != nil {
                 return false
         }
         return true
 }
 
 
+/*
 func main(){
 
         r := &Redis{}
@@ -70,7 +74,6 @@ func main(){
         fmt.Println(r.Get("colll1"))
 }
 
-/*
 
 func (r *Redis) MGet(keys ..interface{}) map[interface{}]interface{}{
 

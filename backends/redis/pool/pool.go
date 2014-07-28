@@ -1,9 +1,10 @@
-package pool
+package mantle
 
 import (
         "github.com/youtube/vitess/go/pools"
         "github.com/garyburd/redigo/redis"
         "time"
+	"fmt"
 )
 
 /////////////////////////////
@@ -20,8 +21,8 @@ type RedisPool struct {
         pool *pools.ResourcePool
 }
 
-func NewPool(r *Redis, capacity int, maxCapacity int, idleTimout time.Duration) *pools.ResourcePool {
-        return &RedisPool{pools.NewResourcePool(newRedisFactory(r), capacity, maxCapacity, idleTimout)}
+func NewPool(host string, port string, capacity int, maxCapacity int, idleTimout time.Duration) *RedisPool {
+        return &RedisPool{pools.NewResourcePool(newRedisFactory(host, port), capacity, maxCapacity, idleTimout)}
 }
 
 func (rp *RedisPool) GetConn() (*RedisConn, error) {
@@ -38,16 +39,18 @@ func (rp *RedisPool) PutConn(conn *RedisConn) {
 }
 
 /////////////////////////////
-func newRedisFactory(r *Redis) pools.Factory {
+func newRedisFactory(host string, port string) pools.Factory {
         return func() (pools.Resource, error) {
-                return connect(r)
+                return connect(host, port)
         }
 }
 
-func connect(r *Redis) (*RedisConn, error) {
-        cli, err := redis.Dial("tcp", r.Host + ":" + r.Port)
+func connect(host string, port string) (*RedisConn, error) {
+        cli, err := redis.Dial("tcp", host + ":" + port)
         if err != nil {
-                return (nil, err)
+		fmt.Println("Error CONNECTING TO DB")
+                return nil, err
         }
-        return (cli, nil)
+		fmt.Println("SUCCESSFUL")
+        return &RedisConn{cli}, nil
 }
