@@ -1,4 +1,4 @@
-package main
+package mantle
 
 import (
         "./backends/redis"
@@ -31,6 +31,7 @@ func (o *Orm) Get() Mantle{
 }
 
 
+/*
 func main(){
         orm := &Orm{Host: "", Port: ""}
         driver := orm.Get()
@@ -39,11 +40,10 @@ func main(){
         fmt.Println(driver.Get("key"))
         driver.Set("key", "value1")
         fmt.Println(driver.Get("key"))
-/*
         connection = driver.Connect()
         connection.Get("key") //returns value
         connection.Set("key", "value") //returns true or false
         connection.MGet(["key1", "key2", "key3"]) // returns map of k v
         connection.MSet(["key"]"value") //returns true or false
-*/
 }
+*/
