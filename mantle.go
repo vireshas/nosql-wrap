@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-type Mantle interface{
+type Mantle interface {
 	//Configure()
         Get(key string) string
         Set(key string, value interface{}) bool
@@ -15,18 +15,18 @@ type Mantle interface{
 }
 
 
-type Orm struct{
+type Orm struct {
         driver string
         Host string
         Port string
 }
 
-func (o *Orm) Get() Mantle{
+func (o *Orm) Get() Mantle {
         if o.driver == "" {
 		redis := &mantle.Redis{Host : "", Port : ""}
 		fmt.Printf("HELLO  %#s", redis)
 		redis.Configure()
-                return Mantle(&redis)
+                return Mantle(redis)
         }else{
                 return Mantle(&mantle.Redis{Host : "", Port : ""})
         }
