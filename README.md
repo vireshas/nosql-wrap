@@ -4,6 +4,11 @@ mantle
 Go wrapper for nosql dbs.
 
 ## Usage:
+
+        Get the package:
+        go get github.com/vireshas/mantle
+
+        Code:
         package main
 
         import "fmt"
