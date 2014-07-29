@@ -1,7 +1,7 @@
 mantle
 ======
 
-Wrapper for nosql dbs.
+Go wrapper for nosql dbs.
 
 ## Usage:
         package main
