@@ -10,7 +10,7 @@ Wrapper for nosql dbs.
         import "github.com/vireshas/mantle"
 
         func main(){
-                orm := mantle.Orm{}
+                orm := mantle.Orm{Driver: "redis"}
                 connection := orm.Get()
                 fmt.Println(connection.Get("key"))
-        }
+        } 
