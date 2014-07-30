@@ -4,6 +4,7 @@ import (
         "github.com/garyburd/redigo/redis"
         pool "github.com/vireshas/mantle/backends/redis/pool"
         "time"
+        "fmt"
 )
 
 //redis struct
@@ -61,9 +62,13 @@ func (r *Redis) Set(key string, value interface{}) bool{
         return true
 }
 
-
+//wrapper around redis mget
+func (r *Redis) MGet(keys ...interface{}) []string{
+        values, err := redis.Strings(r.execute("MGET", keys...))
+        if err != nil { return []string{} }
+        return values
+}
 /*
-func (r *Redis) MGet(keys ..interface{}) map[interface{}]interface{}{}
 func (r *Redis) Get(k_v_map map[interface{}]interface{}) bool{}
 func (r *Redis) Expire(keys ...interface{}) bool{}
 */
