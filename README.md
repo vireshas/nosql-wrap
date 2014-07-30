@@ -21,28 +21,19 @@ Go wrapper for nosql dbs.
                 orm := mantle.Orm{Driver: "redis"}
                 connection := orm.Get()
 
-                fmt.Println(connection.Set("key", "value2"))
-                //output: true
-
-                fmt.Println(connection.Get("key"))
-                //value2
-
-                fmt.Println(connection.MSet(keyValue))
-                //true
-
-                fmt.Println(connection.MGet("key3", "key2"))
-                //[val3 val2]
+                fmt.Println(connection.Set("key", "value2")) //output: true
+                fmt.Println(connection.Get("key"))           //value2
+                fmt.Println(connection.MSet(keyValue))       //true
+                fmt.Println(connection.MGet("key3", "key2")) //[val3 val2]
 
                 connection.Expire("key", 2)
                 time.Sleep(2 * time.Second)
-                fmt.Println(connection.Get("key"))
-                //""
+                fmt.Println(connection.Get("key"))           //""
 
                 /*Execute any redis command*/
                 connection.Execute("LPUSH", "test", "a")
                 connection.Execute("LPUSH", "test", "b")
                 connection.Execute("LPUSH", "test", "c")
                 values, _ := connection.Execute("LRANGE", "test", 0, -1)
-                fmt.Println(values)
-                //[[99] [98] [97] [99] [98] [97] [99] [98] [97] [97]]
+                fmt.Println(values)                          //[[99] [98] [97] [99] [98] [97] [99] [98] [97] [97]]
         }
