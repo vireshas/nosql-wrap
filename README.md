@@ -38,6 +38,7 @@ Go wrapper for nosql dbs.
                 fmt.Println(connection.Get("key"))
                 //""
 
+                /*Execute any redis command*/
                 connection.Execute("LPUSH", "test", "a")
                 connection.Execute("LPUSH", "test", "b")
                 connection.Execute("LPUSH", "test", "c")
