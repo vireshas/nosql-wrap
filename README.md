@@ -36,4 +36,10 @@ Go wrapper for nosql dbs.
                 connection.Execute("LPUSH", "test", "c")
                 values, _ := connection.Execute("LRANGE", "test", 0, -1)
                 fmt.Println(values)                          //[[99] [98] [97] [99] [98] [97] [99] [98] [97] [97]]
+
+                connection.Setex("key", 1, "value")          //true
+                fmt.Println(connection.Get("key"))           //value
+                time.Sleep(1 * time.Second)
+                fmt.Println(connection.Get("key"))           //""
+
         }

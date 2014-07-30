@@ -33,7 +33,7 @@ func (r *Redis) PutClient(c *pool.RedisConn) {
         r.pool.PutConn(c)
 }
 
-//generic methods to Execute any redis call
+//generic method to execute any redis call
 func (r *Redis) Execute(cmd string, args ...interface{}) (interface{}, error) {
         client, err := r.GetClient()
         if err != nil {
@@ -69,6 +69,12 @@ func (r *Redis) MSet(mapOfKeyVal map[string]interface{}) bool {
 
 func (r *Redis) Expire(key string, duration int) bool{
         _, err := r.Execute("EXPIRE", key, duration)
+        if err != nil { return false }
+        return true
+}
+
+func (r *Redis) Setex(key string, duration int, val interface{}) bool{
+        _, err := r.Execute("SETEX", key, duration, val)
         if err != nil { return false }
         return true
 }

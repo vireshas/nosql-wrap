@@ -7,6 +7,7 @@ import (
 type Mantle interface {
         Get(key string) string
         Set(key string, value interface{}) bool
+        Setex(key string, duration int, value interface{}) bool
         MGet(key ...interface{}) []string
         MSet(keyValMap map[string]interface{}) bool
         Expire(key string, duration int) bool
