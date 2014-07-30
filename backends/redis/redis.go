@@ -7,7 +7,7 @@ import (
 )
 
 //redis struct
-type Redis struct{
+type Redis struct {
         Host string
         Port string
         Capacity int
@@ -15,7 +15,7 @@ type Redis struct{
 }
 
 //set default values
-func (r *Redis) SetDefaults(){
+func (r *Redis) SetDefaults() {
         if r.Host == "" { r.Host = "localHost" }
         if r.Port == "" { r.Port = "6379" }
         if r.Capacity == 0 { r.Capacity = 10 }
@@ -23,22 +23,22 @@ func (r *Redis) SetDefaults(){
 }
 
 //alias to SetDefaults
-func (r *Redis) Configure(){
+func (r *Redis) Configure() {
         r.SetDefaults()
 }
 
 //get a client from pool
-func (r *Redis) GetClient() (*pool.RedisConn, error){
+func (r *Redis) GetClient() (*pool.RedisConn, error) {
         return r.pool.GetConn()
 }
 
 //put a client back in pool
-func (r *Redis) PutClient(c *pool.RedisConn){
+func (r *Redis) PutClient(c *pool.RedisConn) {
         r.pool.PutConn(c)
 }
 
 //generic methods to execute any redis call
-func (r *Redis) execute(cmd string, args ...interface{}) (interface{}, error){
+func (r *Redis) execute(cmd string, args ...interface{}) (interface{}, error) {
         client, err := r.GetClient()
         if err != nil {
                 return nil, err
@@ -48,21 +48,21 @@ func (r *Redis) execute(cmd string, args ...interface{}) (interface{}, error){
 }
 
 //wrapper around redis get
-func (r *Redis) Get(key string) string{
+func (r *Redis) Get(key string) string {
         value, err := redis.String(r.execute("GET", key))
         if err != nil { return "Key not found!" }
         return value
 }
 
 //wrapper around redis set
-func (r *Redis) Set(key string, value interface{}) bool{
+func (r *Redis) Set(key string, value interface{}) bool {
         _, redis_err := r.execute("SET", key, value)
         if redis_err != nil { return false }
         return true
 }
 
 //wrapper around redis mget
-func (r *Redis) MGet(keys ...interface{}) []string{
+func (r *Redis) MGet(keys ...interface{}) []string {
         values, err := redis.Strings(r.execute("MGET", keys...))
         if err != nil { return []string{} }
         return values
