@@ -6,7 +6,6 @@ import (
         "time"
 )
 
-//redis struct
 type Redis struct {
         Host string
         Port string
@@ -14,7 +13,6 @@ type Redis struct {
         pool *pool.RedisPool
 }
 
-//set default values
 func (r *Redis) SetDefaults() {
         if r.Host == "" { r.Host = "localHost" }
         if r.Port == "" { r.Port = "6379" }
@@ -27,12 +25,10 @@ func (r *Redis) Configure() {
         r.SetDefaults()
 }
 
-//get a client from pool
 func (r *Redis) GetClient() (*pool.RedisConn, error) {
         return r.pool.GetConn()
 }
 
-//put a client back in pool
 func (r *Redis) PutClient(c *pool.RedisConn) {
         r.pool.PutConn(c)
 }
@@ -47,33 +43,32 @@ func (r *Redis) execute(cmd string, args ...interface{}) (interface{}, error) {
         return client.Do(cmd, args...)
 }
 
-//wrapper around redis get
 func (r *Redis) Get(key string) string {
         value, err := redis.String(r.execute("GET", key))
-        if err != nil { return "Key not found!" }
+        if err != nil { return "" }
         return value
 }
 
-//wrapper around redis set
 func (r *Redis) Set(key string, value interface{}) bool {
         _, redis_err := r.execute("SET", key, value)
         if redis_err != nil { return false }
         return true
 }
 
-//wrapper around redis mget
 func (r *Redis) MGet(keys ...interface{}) []string {
         values, err := redis.Strings(r.execute("MGET", keys...))
         if err != nil { return []string{} }
         return values
 }
 
-//wrapper around redis mset
 func (r *Redis) MSet(mapOfKeyVal map[string]interface{}) bool {
         _, err := r.execute("MSET", redis.Args{}.AddFlat(mapOfKeyVal)...)
         if err != nil { return false }
         return true
 }
-/*
-func (r *Redis) Expire(keys ...interface{}) bool{}
-*/
+
+func (r *Redis) Expire(key string, duration int) bool{
+        _, err := r.execute("EXPIRE", key, duration)
+        if err != nil { return false }
+        return true
+}

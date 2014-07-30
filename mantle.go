@@ -9,7 +9,7 @@ type Mantle interface {
         Set(key string, value interface{}) bool
         MGet(key ...interface{}) []string
         MSet(keyValMap map[string]interface{}) bool
-        //Expire(keys ...interface{}) bool
+        Expire(key string, duration int) bool
 }
 
 type Orm struct {
