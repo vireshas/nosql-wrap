@@ -8,7 +8,7 @@ type Mantle interface {
         Get(key string) string
         Set(key string, value interface{}) bool
         MGet(key ...interface{}) []string
-        //MSet(k_v_map map[string]interface{}) bool
+        MSet(keyValMap map[string]interface{}) bool
         //Expire(keys ...interface{}) bool
 }
 

@@ -67,7 +67,13 @@ func (r *Redis) MGet(keys ...interface{}) []string {
         if err != nil { return []string{} }
         return values
 }
+
+//wrapper around redis mset
+func (r *Redis) MSet(mapOfKeyVal map[string]interface{}) bool {
+        _, err := r.execute("MSET", redis.Args{}.AddFlat(mapOfKeyVal)...)
+        if err != nil { return false }
+        return true
+}
 /*
-func (r *Redis) Get(k_v_map map[interface{}]interface{}) bool{}
 func (r *Redis) Expire(keys ...interface{}) bool{}
 */
