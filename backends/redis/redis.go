@@ -33,8 +33,8 @@ func (r *Redis) PutClient(c *pool.RedisConn) {
         r.pool.PutConn(c)
 }
 
-//generic methods to execute any redis call
-func (r *Redis) execute(cmd string, args ...interface{}) (interface{}, error) {
+//generic methods to Execute any redis call
+func (r *Redis) Execute(cmd string, args ...interface{}) (interface{}, error) {
         client, err := r.GetClient()
         if err != nil {
                 return nil, err
@@ -44,31 +44,31 @@ func (r *Redis) execute(cmd string, args ...interface{}) (interface{}, error) {
 }
 
 func (r *Redis) Get(key string) string {
-        value, err := redis.String(r.execute("GET", key))
+        value, err := redis.String(r.Execute("GET", key))
         if err != nil { return "" }
         return value
 }
 
 func (r *Redis) Set(key string, value interface{}) bool {
-        _, redis_err := r.execute("SET", key, value)
+        _, redis_err := r.Execute("SET", key, value)
         if redis_err != nil { return false }
         return true
 }
 
 func (r *Redis) MGet(keys ...interface{}) []string {
-        values, err := redis.Strings(r.execute("MGET", keys...))
+        values, err := redis.Strings(r.Execute("MGET", keys...))
         if err != nil { return []string{} }
         return values
 }
 
 func (r *Redis) MSet(mapOfKeyVal map[string]interface{}) bool {
-        _, err := r.execute("MSET", redis.Args{}.AddFlat(mapOfKeyVal)...)
+        _, err := r.Execute("MSET", redis.Args{}.AddFlat(mapOfKeyVal)...)
         if err != nil { return false }
         return true
 }
 
 func (r *Redis) Expire(key string, duration int) bool{
-        _, err := r.execute("EXPIRE", key, duration)
+        _, err := r.Execute("EXPIRE", key, duration)
         if err != nil { return false }
         return true
 }
