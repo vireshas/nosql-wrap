@@ -43,6 +43,12 @@ func (r *Redis) Execute(cmd string, args ...interface{}) (interface{}, error) {
         return client.Do(cmd, args...)
 }
 
+func (r *Redis) Delete(keys ...interface{}) int {
+        value, err := redis.Int(r.Execute("DEL", keys...))
+        if err != nil { return -1 }
+        return value
+}
+
 func (r *Redis) Get(key string) string {
         value, err := redis.String(r.Execute("GET", key))
         if err != nil { return "" }

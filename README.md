@@ -23,11 +23,14 @@ Go wrapper for nosql dbs.
 
                 fmt.Println(connection.Set("key", "value2")) //output: true
                 fmt.Println(connection.Get("key"))           //value2
+                fmt.Println(connection.Delete("key"))        //1
+                fmt.Println(connection.Get("key"))           //""
+
                 fmt.Println(connection.MSet(keyValue))       //true
                 fmt.Println(connection.MGet("key3", "key2")) //[val3 val2]
 
-                connection.Expire("key", 2)
-                time.Sleep(2 * time.Second)
+                connection.Expire("key", 1)                  //true
+                time.Sleep(1 * time.Second)
                 fmt.Println(connection.Get("key"))           //""
 
                 /*Execute any redis command*/
@@ -35,7 +38,7 @@ Go wrapper for nosql dbs.
                 connection.Execute("LPUSH", "test", "b")
                 connection.Execute("LPUSH", "test", "c")
                 values, _ := connection.Execute("LRANGE", "test", 0, -1)
-                fmt.Println(values)                          //[[99] [98] [97] [99] [98] [97] [99] [98] [97] [97]]
+                fmt.Println(values)                          //[[99] [98] [97]]
 
                 connection.Setex("key", 1, "value")          //true
                 fmt.Println(connection.Get("key"))           //value
