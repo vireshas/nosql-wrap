@@ -25,16 +25,23 @@ Go wrapper for nosql dbs.
                 //output: true
 
                 fmt.Println(connection.Get("key"))
-                //output: value2
+                //value2
 
                 fmt.Println(connection.MSet(keyValue))
-                //output: true
+                //true
 
                 fmt.Println(connection.MGet("key3", "key2"))
-                //output: [val3 val2]
+                //[val3 val2]
 
                 connection.Expire("key", 2)
                 time.Sleep(2 * time.Second)
                 fmt.Println(connection.Get("key"))
-                //output: "" 
+                //""
+
+                connection.Execute("LPUSH", "test", "a")
+                connection.Execute("LPUSH", "test", "b")
+                connection.Execute("LPUSH", "test", "c")
+                values, _ := connection.Execute("LRANGE", "test", 0, -1)
+                fmt.Println(values)
+                //[[99] [98] [97] [99] [98] [97] [99] [98] [97] [97]]
         }
