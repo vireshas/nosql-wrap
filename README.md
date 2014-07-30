@@ -1,14 +1,12 @@
-mantle
+Mantle
 ======
 
 Go wrapper for nosql dbs.
 
-## Usage:
-
-        Get the package:
+####Get the package:
         go get github.com/vireshas/mantle
-
-        Code:
+        
+####Code:
         package main
 
         import "fmt"
