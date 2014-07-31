@@ -1,7 +1,7 @@
 package mantle
 
 import (
-        "github.com/vireshas/mantle/backends/redis"
+        redis "github.com/vireshas/mantle/backends/redis"
 )
 
 type Mantle interface {
@@ -24,9 +24,9 @@ type Orm struct {
 
 func (o *Orm) Get() Mantle {
         if o.Driver == "memcache" {
-                return Mantle(&mantle.Redis{Host:o.Host, Port:o.Port, Capacity:o.Capacity})
+                return Mantle(&redis.Redis{Host:o.Host, Port:o.Port, Capacity:o.Capacity})
         }else{
-		redis := &mantle.Redis{Host:o.Host, Port:o.Port, Capacity:o.Capacity}
+		redis := &redis.Redis{Host:o.Host, Port:o.Port, Capacity:o.Capacity}
 		redis.Configure()
                 return Mantle(redis)
         }
