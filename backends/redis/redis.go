@@ -20,7 +20,7 @@ func (r *Redis) SetDefaults() {
         r.pool = pool.NewPool( r.Host, r.Port, r.Capacity, r.Capacity, time.Minute )
 }
 
-//alias to SetDefaults
+//Alias to SetDefaults
 func (r *Redis) Configure() {
         r.SetDefaults()
 }
@@ -33,7 +33,7 @@ func (r *Redis) PutClient(c *pool.RedisConn) {
         r.pool.PutConn(c)
 }
 
-//generic method to execute any redis call
+//Generic method to execute any redis call
 func (r *Redis) Execute(cmd string, args ...interface{}) (interface{}, error) {
         client, err := r.GetClient()
         if err != nil {
