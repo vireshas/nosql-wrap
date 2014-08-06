@@ -62,8 +62,8 @@ func (r *Redis) Get(key string) string {
 }
 
 func (r *Redis) Set(key string, value interface{}) bool {
-        _, redis_err := r.Execute("SET", key, value)
-        if redis_err != nil { return false }
+        _, err := r.Execute("SET", key, value)
+        if err != nil { return false }
         return true
 }
 
@@ -90,3 +90,4 @@ func (r *Redis) Setex(key string, duration int, val interface{}) bool {
         if err != nil { return false }
         return true
 }
+
