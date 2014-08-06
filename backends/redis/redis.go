@@ -73,13 +73,13 @@ func (r *Redis) MSet(mapOfKeyVal map[string]interface{}) bool {
         return true
 }
 
-func (r *Redis) Expire(key string, duration int) bool{
+func (r *Redis) Expire(key string, duration int) bool {
         _, err := r.Execute("EXPIRE", key, duration)
         if err != nil { return false }
         return true
 }
 
-func (r *Redis) Setex(key string, duration int, val interface{}) bool{
+func (r *Redis) Setex(key string, duration int, val interface{}) bool {
         _, err := r.Execute("SETEX", key, duration, val)
         if err != nil { return false }
         return true
