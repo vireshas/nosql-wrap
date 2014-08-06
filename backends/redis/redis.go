@@ -6,6 +6,12 @@ import (
         "time"
 )
 
+const (
+        PoolSize = 10
+        DefaultHost = "localhost"
+        DefaultPort = "6379"
+)
+
 type Redis struct {
         Host string
         Port string
@@ -14,9 +20,9 @@ type Redis struct {
 }
 
 func (r *Redis) SetDefaults() {
-        if r.Host == "" { r.Host = "localHost" }
-        if r.Port == "" { r.Port = "6379" }
-        if r.Capacity == 0 { r.Capacity = 10 }
+        if r.Host == "" { r.Host = DefaultHost }
+        if r.Port == "" { r.Port = DefaultPort }
+        if r.Capacity == 0 { r.Capacity = PoolSize }
         r.pool = pool.NewPool( r.Host, r.Port, r.Capacity, r.Capacity, time.Minute )
 }
 
