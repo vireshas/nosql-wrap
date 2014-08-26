@@ -2,7 +2,6 @@ package mantle
 
 import (
         "github.com/garyburd/redigo/redis"
-        //pool "github.com/vireshas/mantle/backends/redis/pool"
         "time"
 )
 
