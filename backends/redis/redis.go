@@ -2,6 +2,7 @@ package mantle
 
 import (
         "github.com/garyburd/redigo/redis"
+        pool "github.com/vireshas/mantle/backends/redis/pool"
         "time"
 )
 
@@ -15,14 +16,14 @@ type Redis struct {
         Host string
         Port string
         Capacity int
-        pool *RedisPool
+        pool *pool.RedisPool
 }
 
 func (r *Redis) SetDefaults() {
         if r.Host == "" { r.Host = DefaultHost }
         if r.Port == "" { r.Port = DefaultPort }
         if r.Capacity == 0 { r.Capacity = PoolSize }
-        r.pool = NewPool( r.Host, r.Port, r.Capacity, r.Capacity, time.Minute )
+        r.pool = pool.NewPool( r.Host, r.Port, r.Capacity, r.Capacity, time.Minute )
 }
 
 //Alias to SetDefaults
@@ -30,11 +31,11 @@ func (r *Redis) Configure() {
         r.SetDefaults()
 }
 
-func (r *Redis) GetClient() (*RedisConn, error) {
+func (r *Redis) GetClient() (*pool.RedisConn, error) {
         return r.pool.GetConn()
 }
 
-func (r *Redis) PutClient(c *RedisConn) {
+func (r *Redis) PutClient(c *pool.RedisConn) {
         r.pool.PutConn(c)
 }
 
