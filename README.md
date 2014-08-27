@@ -29,7 +29,7 @@ Go wrapper for nosql dbs.
                 fmt.Println(connection.MSet(keyValue))       //true
                 fmt.Println(connection.MGet("key3", "key2")) //[val3 val2]
 
-                connection.Expire("key", 1)                  //true
+                connection.Expire("key", 1)
                 time.Sleep(1 * time.Second)
                 fmt.Println(connection.Get("key"))           //""
 
@@ -40,7 +40,7 @@ Go wrapper for nosql dbs.
                 values, _ := connection.Execute("LRANGE", "test", 0, -1)
                 fmt.Println(values)                          //[[99] [98] [97]]
 
-                connection.Setex("key", 1, "value")          //true
+                connection.Setex("key", 1, "value")
                 fmt.Println(connection.Get("key"))           //value
                 time.Sleep(1 * time.Second)
                 fmt.Println(connection.Get("key"))           //""
