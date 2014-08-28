@@ -1,6 +1,7 @@
 package mantle
 
 import (
+        "github.com/youtube/vitess/go/pools"
         "github.com/garyburd/redigo/redis"
         pool "github.com/vireshas/mantle/backends/redis/pool"
         "time"
@@ -16,14 +17,24 @@ type Redis struct {
         Host string
         Port string
         Capacity int
-        pool *pool.RedisPool
+        pool *pool.ResourcePool
 }
 
 func (r *Redis) SetDefaults() {
         if r.Host == "" { r.Host = DefaultHost }
         if r.Port == "" { r.Port = DefaultPort }
         if r.Capacity == 0 { r.Capacity = PoolSize }
-        r.pool = pool.NewPool( r.Host, r.Port, r.Capacity, r.Capacity, time.Minute )
+        r.pool = pool.NewPool( Connect, r.Host, r.Port, r.Capacity, r.Capacity, time.Minute )
+}
+
+//Wrapping redis connection
+type RedisConn struct {
+        redis.Conn
+}
+
+//Close a redis connection
+func (r *RedisConn) Close() {
+        _ = r.Conn.Close()
 }
 
 //Alias to SetDefaults
@@ -31,12 +42,25 @@ func (r *Redis) Configure() {
         r.SetDefaults()
 }
 
-func (r *Redis) GetClient() (*pool.RedisConn, error) {
-        return r.pool.GetConn()
+func (r *Redis) GetClient() (*RedisConn, error) {
+        connection, err := r.pool.GetConn()
+        if err != nil{
+                return nil, err
+        }
+        return connection.(*RedisConn), nil
 }
 
-func (r *Redis) PutClient(c *pool.RedisConn) {
+func (r *Redis) PutClient(c *RedisConn) {
         r.pool.PutConn(c)
+}
+
+//This method actually connects to redis
+func Connect(host string, port string) (pools.Resource, error) {
+        cli, err := redis.Dial("tcp", host + ":" + port)
+        if err != nil {
+                return nil, err
+        }
+        return &RedisConn{cli}, nil
 }
 
 //Generic method to execute any redis call
