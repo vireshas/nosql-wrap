@@ -13,24 +13,23 @@ const (
 )
 
 type Redis struct {
-        Host string
-        Port string
-        Capacity int
+        Settings PoolSettings
         pool *ResourcePool
 }
 
 func (r *Redis) SetDefaults() {
-        if r.Host == "" { r.Host = DefaultHost }
-        if r.Port == "" { r.Port = DefaultPort }
-        if r.Capacity == 0 { r.Capacity = PoolSize }
-        r.pool = NewPool( Connect, r.Host, r.Port, r.Capacity, r.Capacity, time.Minute )
+        if r.Settings.Host == "" { r.Settings.Host = DefaultHost }
+        if r.Settings.Port == "" { r.Settings.Port = DefaultPort }
+        if r.Settings.Capacity == 0 { r.Settings.Capacity = PoolSize }
+        if r.Settings.MaxCapacity == 0 { r.Settings.MaxCapacity = PoolSize }
+        r.Settings.Timeout = time.Minute
+        r.pool = NewPool(Connect, r.Settings)
 }
 
-
-/*
-        Creating a redis pool
-*/
-
+//Alias to SetDefaults
+func (r *Redis) Configure() {
+        r.SetDefaults()
+}
 
 //Wrapping redis connection
 type RedisConn struct {
@@ -40,11 +39,6 @@ type RedisConn struct {
 //Close a redis connection
 func (r *RedisConn) Close() {
         _ = r.Conn.Close()
-}
-
-//Alias to SetDefaults
-func (r *Redis) Configure() {
-        r.SetDefaults()
 }
 
 func (r *Redis) GetClient() (*RedisConn, error) {
@@ -67,10 +61,6 @@ func Connect(host string, port string) (pools.Resource, error) {
         }
         return &RedisConn{cli}, nil
 }
-
-/*
-        Wrappers on top of redis
-*/
 
 //Generic method to execute any redis call
 func (r *Redis) Execute(cmd string, args ...interface{}) (interface{}, error) {
