@@ -53,7 +53,7 @@ func (r *Redis) PutClient(c *RedisConn) {
         r.pool.PutConn(c)
 }
 
-//This method actually connects to redis
+//This method creates a redis connection
 func Connect(host string, port string) (pools.Resource, error) {
         cli, err := redis.Dial("tcp", host + ":" + port)
         if err != nil {
