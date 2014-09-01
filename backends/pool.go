@@ -37,14 +37,7 @@ type dialAndConnect func (host, port string) (pools.Resource, error)
 
 //We create pool using NewPool
 func NewPool(connect dialAndConnect, settings PoolSettings) *ResourcePool {
-        return &ResourcePool{
-                        pools.NewResourcePool(
-                                newRedisFactory(connect, settings.Host, settings.Port),
-                                settings.Capacity,
-                                settings.MaxCapacity,
-                                settings.Timeout
-                        )
-               }
+        return &ResourcePool{pools.NewResourcePool( newRedisFactory(connect, settings.Host, settings.Port),settings.Capacity,settings.MaxCapacity,settings.Timeout)}
 }
 
 //Helper methods for creating a pool

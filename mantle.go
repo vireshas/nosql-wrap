@@ -24,17 +24,11 @@ type Orm struct {
 
 func (o *Orm) Get() Mantle {
         if o.Driver == "memcache" {
-                redis := &mantle.Redis{ Settings : mantle.PoolSettings{
-                                Host:o.Host, Port:o.Port, Capacity:o.Capacity
-                         }
-
+                redis := &mantle.Redis{Settings: mantle.PoolSettings{ Host: o.Host, Port: o.Port, Capacity: o.Capacity }}
 		redis.Configure()
                 return Mantle(redis)
         }else{
-                redis := &mantle.Redis{ Settings : mantle.PoolSettings{
-                                Host:o.Host, Port:o.Port, Capacity:o.Capacity
-                         }
-
+                redis := &mantle.Redis{Settings: mantle.PoolSettings{ Host: o.Host, Port: o.Port, Capacity: o.Capacity }}
 		redis.Configure()
                 return Mantle(redis)
         }
