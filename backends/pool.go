@@ -5,10 +5,18 @@ import (
         "time"
 )
 
+//params required to create a pool
+type PoolSettings struct {
+        Host string
+        Port string
+        Capacity int
+        MaxCapacity int
+        Timeout time.Duration
+}
+
 //Get a client from pool
 func (rp *ResourcePool) GetConn() (pools.Resource, error) {
         resource, err := rp.pool.Get()
-
         if err != nil {
                 return nil, err
         }
@@ -28,9 +36,17 @@ type ResourcePool struct {
 type dialAndConnect func (host, port string) (pools.Resource, error)
 
 //We create pool using NewPool
-func NewPool(connect dialAndConnect, host string, port string, capacity int, maxCapacity int, idleTimout time.Duration) *ResourcePool {
-        return &ResourcePool{pools.NewResourcePool(newRedisFactory(connect, host, port), capacity, maxCapacity, idleTimout)}
+func NewPool(connect dialAndConnect, settings PoolSettings) *ResourcePool {
+        return &ResourcePool{
+                        pools.NewResourcePool(
+                                newRedisFactory(connect, settings.Host, settings.Port),
+                                settings.Capacity,
+                                settings.MaxCapacity,
+                                settings.Timeout
+                        )
+               }
 }
+
 //Helper methods for creating a pool
 func newRedisFactory(connect dialAndConnect, host string, port string) pools.Factory {
         return func() (pools.Resource, error) {
