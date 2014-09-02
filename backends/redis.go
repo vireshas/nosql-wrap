@@ -57,7 +57,7 @@ func (r *Redis) PutClient(c *RedisConn) {
 func Connect(host string, port string) (pools.Resource, error) {
         cli, err := redis.Dial("tcp", host + ":" + port)
         if err != nil {
-                return nil, err
+                panic(err)
         }
         return &RedisConn{cli}, nil
 }
