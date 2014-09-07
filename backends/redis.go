@@ -17,8 +17,8 @@ type Redis struct {
 }
 
 func (r *Redis) SetDefaults() {
-	if len(r.Settings.IpAndHosts) == 0 {
-		r.Settings.IpAndHosts = DefaultIpAndHost
+	if len(r.Settings.HostAndPorts) == 0 {
+		r.Settings.HostAndPorts = DefaultIpAndHost
 	}
 	if r.Settings.Capacity == 0 {
 		r.Settings.Capacity = PoolSize

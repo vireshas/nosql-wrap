@@ -16,26 +16,26 @@ type Mantle interface {
 }
 
 type Orm struct {
-	Driver     string
-	IpAndHosts []string
-	Capacity   int
+	Driver       string
+	HostAndPorts []string
+	Capacity     int
 }
 
 func (o *Orm) Get() Mantle {
 	if o.Driver == "memcache" {
 		redis := &mantle.Redis{
 			Settings: mantle.PoolSettings{
-				IpAndHosts:  o.IpAndHosts,
-				Capacity:    o.Capacity,
-				MaxCapacity: o.Capacity}}
+				HostAndPorts: o.HostAndPorts,
+				Capacity:     o.Capacity,
+				MaxCapacity:  o.Capacity}}
 		redis.Configure()
 		return Mantle(redis)
 	} else {
 		redis := &mantle.Redis{
 			Settings: mantle.PoolSettings{
-				IpAndHosts:  o.IpAndHosts,
-				Capacity:    o.Capacity,
-				MaxCapacity: o.Capacity}}
+				HostAndPorts: o.HostAndPorts,
+				Capacity:     o.Capacity,
+				MaxCapacity:  o.Capacity}}
 		redis.Configure()
 		return Mantle(redis)
 	}
