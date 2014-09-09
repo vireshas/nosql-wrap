@@ -6,10 +6,10 @@ import (
 )
 
 type PoolSettings struct {
-	IpAndHosts  []string
-	Capacity    int
-	MaxCapacity int
-	Timeout     time.Duration
+	HostAndPorts []string
+	Capacity     int
+	MaxCapacity  int
+	Timeout      time.Duration
 }
 
 func (rp *ResourcePool) GetConn() (pools.Resource, error) {
@@ -29,16 +29,16 @@ type ResourcePool struct {
 }
 
 //The connect callback that is passed by a backend
-type dialAndConnect func(ipHosts []string) (pools.Resource, error)
+type dialAndConnect func(hostNPorts []string) (pools.Resource, error)
 
 func NewPool(connect dialAndConnect, settings PoolSettings) *ResourcePool {
 	return &ResourcePool{
-		pools.NewResourcePool(newRedisFactory(connect, settings.IpAndHosts),
+		pools.NewResourcePool(newRedisFactory(connect, settings.HostAndPorts),
 			settings.Capacity, settings.MaxCapacity, settings.Timeout)}
 }
 
-func newRedisFactory(connect dialAndConnect, IpAndHosts []string) pools.Factory {
+func newRedisFactory(connect dialAndConnect, HostAndPorts []string) pools.Factory {
 	return func() (pools.Resource, error) {
-		return connect(IpAndHosts)
+		return connect(HostAndPorts)
 	}
 }
