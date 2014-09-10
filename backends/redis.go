@@ -3,14 +3,13 @@ package mantle
 import (
 	"github.com/garyburd/redigo/redis"
 	"github.com/youtube/vitess/go/pools"
+	"strings"
 	"time"
 )
 
-const (
-	PoolSize    = 10
-	DefaultHost = "localhost"
-	DefaultPort = "6379"
-)
+//cant make these guys const as []string is not allowed in consts
+var PoolSize = 10
+var DefaultIpAndHost = []string{"localhost:6379"}
 
 type Redis struct {
 	Settings PoolSettings
@@ -18,11 +17,8 @@ type Redis struct {
 }
 
 func (r *Redis) SetDefaults() {
-	if r.Settings.Host == "" {
-		r.Settings.Host = DefaultHost
-	}
-	if r.Settings.Port == "" {
-		r.Settings.Port = DefaultPort
+	if len(r.Settings.IpAndHosts) == 0 {
+		r.Settings.IpAndHosts = DefaultIpAndHost
 	}
 	if r.Settings.Capacity == 0 {
 		r.Settings.Capacity = PoolSize
@@ -62,8 +58,12 @@ func (r *Redis) PutClient(c *RedisConn) {
 }
 
 //This method creates a redis connection
-func Connect(host string, port string) (pools.Resource, error) {
-	cli, err := redis.Dial("tcp", host+":"+port)
+func Connect(IpAndHost []string) (pools.Resource, error) {
+	if len(IpAndHost) > 1 {
+		panic("we can only connect to 1 server at the moment")
+	}
+	hostNPort := strings.Split(IpAndHost[0], ":")
+	cli, err := redis.Dial("tcp", hostNPort[0]+":"+hostNPort[1])
 	if err != nil {
 		panic(err)
 	}
