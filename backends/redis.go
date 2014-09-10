@@ -31,7 +31,8 @@ func (r *Redis) SetDefaults() {
 }
 
 //Alias to SetDefaults
-func (r *Redis) Configure() {
+func (r *Redis) Configure(settings PoolSettings) {
+	r.Settings = settings
 	r.SetDefaults()
 }
 
