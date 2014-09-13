@@ -1,29 +1,40 @@
 package mantle
 
 import (
-        "github.com/vireshas/mantle/backends/redis"
+	"github.com/vireshas/mantle/backends"
 )
 
 type Mantle interface {
-        Get(key string) string
-        Set(key string, value interface{}) bool
-        //MGet(key ...interface{}) map[interface{}]interface{}
-        //MSet(k_v_map map[interface{}]interface{}) bool
-        //Expire(keys ...interface{}) bool
+	Get(key string) string
+	Set(key string, value interface{}) bool
+	Delete(keys ...interface{}) int
+	Setex(key string, duration int, value interface{}) bool
+	MGet(keys ...interface{}) []string
+	MSet(keyValMap map[string]interface{}) bool
+	Expire(key string, duration int) bool
+	Execute(cmd string, args ...interface{}) (interface{}, error)
 }
 
 type Orm struct {
-        Driver string
-        Host string
-        Port string
+	Driver       string
+	HostAndPorts []string
+	Capacity     int
 }
 
 func (o *Orm) Get() Mantle {
-        if o.Driver == "memcache" {
-                return Mantle(&mantle.Redis{Host : "", Port : ""})
-        }else{
-		redis := &mantle.Redis{Host : "", Port : ""}
-		redis.Configure()
-                return Mantle(redis)
-        }
+
+	poolSettings := mantle.PoolSettings{
+		HostAndPorts: o.HostAndPorts,
+		Capacity:     o.Capacity,
+		MaxCapacity:  o.Capacity}
+
+	if o.Driver == "memcache" {
+		redis := &mantle.Redis{}
+		redis.Configure(poolSettings)
+		return Mantle(redis)
+	} else {
+		redis := &mantle.Redis{}
+		redis.Configure(poolSettings)
+		return Mantle(redis)
+	}
 }
