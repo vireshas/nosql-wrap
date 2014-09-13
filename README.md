@@ -19,8 +19,8 @@ Go wrapper for nosql dbs.
                 keyValue := map[string]interface{}{"key1":"val1", "key2":"val2", "key3":"val3"}
                 hostNPort := []string{"localhost:6379"}
                 orm := mantle.Orm{Driver: "redis", HostAndPorts: hostNPort}
-                #default "localhost:6379 is used when hostAndPort is not passed"
-                #orm := mantle.Orm{Driver: "redis"}
+                //default "localhost:6379 is used when hostAndPort is not passed"
+                //orm := mantle.Orm{Driver: "redis"}
                 connection := orm.Get()
 
                 fmt.Println(connection.Set("key", "value2")) //output: true
