@@ -15,7 +15,7 @@ func MConnect(Instance interface{}) (pools.Resource, error) {
 	hostNPorts := redisInstance.Settings.HostAndPorts
 
 	if len(hostNPorts) > 1 {
-		panic("we can only connect to 1 server at the moment")
+		panic("we can only connect to 1 servem at the moment")
 	}
 
 	fmt.Println("connecting to ", hostNPorts[0])
@@ -28,7 +28,7 @@ type MemConn struct {
 	*memcache.Client
 }
 
-func (r *MemConn) Close() {
+func (m *MemConn) Close() {
 }
 
 type Memcache struct {
@@ -36,79 +36,79 @@ type Memcache struct {
 	pool     *ResourcePool
 }
 
-func (r *Memcache) GetClient() *MemConn {
-	connection, err := r.pool.GetConn(r.Settings.Timeout)
+func (m *Memcache) GetClient() *MemConn {
+	connection, err := m.pool.GetConn(m.Settings.Timeout)
 	if err != nil {
 		panic(err)
 	}
 	return connection.(*MemConn)
 }
 
-func (r *Memcache) PutClient(c *MemConn) {
-	r.pool.PutConn(c)
+func (m *Memcache) PutClient(c *MemConn) {
+	m.pool.PutConn(c)
 }
 
-func (r *Memcache) SetDefaults() {
-	if len(r.Settings.HostAndPorts) == 0 {
-		r.Settings.HostAndPorts = DefaultMemcacheIpAndHost
+func (m *Memcache) SetDefaults() {
+	if len(m.Settings.HostAndPorts) == 0 {
+		m.Settings.HostAndPorts = DefaultMemcacheIpAndHost
 	}
-	if r.Settings.Capacity == 0 {
-		r.Settings.Capacity = PoolSize
+	if m.Settings.Capacity == 0 {
+		m.Settings.Capacity = PoolSize
 	}
-	if r.Settings.MaxCapacity == 0 {
-		r.Settings.MaxCapacity = PoolSize
+	if m.Settings.MaxCapacity == 0 {
+		m.Settings.MaxCapacity = PoolSize
 	}
-	r.Settings.Timeout = time.Minute
-	r.pool = NewPool(MConnect, r, r.Settings)
+	m.Settings.Timeout = time.Minute
+	m.pool = NewPool(MConnect, m, m.Settings)
 }
 
-func (r *Memcache) Configure(settings PoolSettings) {
-	r.Settings = settings
-	r.SetDefaults()
+func (m *Memcache) Configure(settings PoolSettings) {
+	m.Settings = settings
+	m.SetDefaults()
 }
 
-func (r *Memcache) Execute(cmd string, args ...interface{}) (interface{}, error) {
+func (m *Memcache) Execute(cmd string, args ...interface{}) (interface{}, error) {
 	return "inside GEt", nil
 }
 
-func (r *Memcache) Delete(keys ...interface{}) int {
+func (m *Memcache) Delete(keys ...interface{}) int {
 	return 1
 }
 
-func (r *Memcache) Get(key string) string {
-	mc := r.GetClient()
-	it, err := mc.Get(key)
-	r.PutClient(mc)
-	if err != nil {
-		errMsg := fmt.Sprintf("Error getting key %s", key)
+func (m *Memcache) Get(key string) string {
+	mc := m.GetClient()
+	it, erm := mc.Get(key)
+	m.PutClient(mc)
+	if erm != nil {
+		errMsg := fmt.Sprintf("Errom getting key %s", key)
 		return errMsg
 	}
 	return string(it.Value)
 }
 
-func (r *Memcache) Set(key string, value interface{}) bool {
-	mc := r.GetClient()
+func (m *Memcache) Set(key string, value interface{}) bool {
+	mc := m.GetClient()
 	newVal := value.(string)
-	err := mc.Set(&memcache.Item{Key: key, Value: []byte(newVal)})
-	r.PutClient(mc)
-	if err != nil {
+	erm := mc.Set(&memcache.Item{Key: key, Value: []byte(newVal)})
+	m.PutClient(mc)
+	if erm != nil {
 		return false
 	}
 	return true
 }
 
-func (r *Memcache) MGet(keys ...interface{}) []string {
+func (m *Memcache) MGet(keys ...interface{}) []string {
 	return []string{"hello world"}
 }
 
-func (r *Memcache) MSet(mapOfKeyVal map[string]interface{}) bool {
+func (m *Memcache) MSet(mapOfKeyVal map[string]interface{}) bool {
 	return true
 }
 
-func (r *Memcache) Expire(key string, duration int) bool {
+func (m *Memcache) Expire(key string, duration int) bool {
 	return true
 }
 
-func (r *Memcache) Setex(key string, duration int, val interface{}) bool {
+func (m *Memcache) Setex(key string, duration int, val interface{}) bool {
 	return true
 }
