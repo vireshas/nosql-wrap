@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/bradfitz/gomemcache/memcache"
 	"github.com/vireshas/minimal_vitess_pool/pools"
+	"strings"
 	"time"
 )
 
@@ -11,16 +12,11 @@ var MemcachePoolSize = 10
 var DefaultMemcacheIpAndHost = []string{"localhost:11211"}
 
 func MConnect(Instance interface{}) (pools.Resource, error) {
-	redisInstance := Instance.(*Memcache)
-	hostNPorts := redisInstance.Settings.HostAndPorts
-
-	if len(hostNPorts) > 1 {
-		panic("we can only connect to 1 servem at the moment")
-	}
-
-	fmt.Println("connecting to ", hostNPorts[0])
-	cli := memcache.New(hostNPorts[0])
-
+	mcInstance := Instance.(*Memcache)
+	hostNPorts := mcInstance.Settings.HostAndPorts
+	servers := strings.(hostNPorts, ",")
+	fmt.Println("connecting to ", hostNPorts)
+	cli := memcache.New(hostNPorts)
 	return &MemConn{cli}, nil
 }
 
