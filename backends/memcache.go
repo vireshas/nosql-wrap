@@ -14,7 +14,7 @@ var DefaultMemcacheIpAndHost = []string{"localhost:11211"}
 func MConnect(Instance interface{}) (pools.Resource, error) {
 	mcInstance := Instance.(*Memcache)
 	hostNPorts := mcInstance.Settings.HostAndPorts
-	servers := strings.(hostNPorts, ",")
+	servers := strings.Join(hostNPorts, ",")
 	fmt.Println("connecting to ", hostNPorts)
 	cli := memcache.New(hostNPorts)
 	return &MemConn{cli}, nil
