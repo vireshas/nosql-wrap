@@ -15,8 +15,8 @@ func MConnect(Instance interface{}) (pools.Resource, error) {
 	mcInstance := Instance.(*Memcache)
 	hostNPorts := mcInstance.Settings.HostAndPorts
 	servers := strings.Join(hostNPorts, ",")
-	fmt.Println("connecting to ", hostNPorts)
-	cli := memcache.New(hostNPorts)
+	fmt.Println("connecting to ", servers)
+	cli := memcache.New(servers)
 	return &MemConn{cli}, nil
 }
 
