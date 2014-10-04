@@ -3,6 +3,7 @@ package mantle
 import (
 	"github.com/garyburd/redigo/redis"
 	"github.com/youtube/vitess/go/pools"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -12,15 +13,31 @@ var PoolSize = 10
 var DefaultIpAndHost = []string{"localhost:6379"}
 
 //This method creates a redis connection
-func Connect(IpAndHost []string) (pools.Resource, error) {
-	if len(IpAndHost) > 1 {
+func Connect(Instance interface{}) (pools.Resource, error) {
+	//we need to read ip and db from this struct
+	redis_struct := Instance.(*Redis)
+	hostNPorts := redis_struct.Settings.HostAndPorts
+	db := redis_struct.db
+
+	//panic is more than 1 ip is given
+	if len(hostNPorts) > 1 {
 		panic("we can only connect to 1 server at the moment")
 	}
-	hostNPort := strings.Split(IpAndHost[0], ":")
+
+	//dial host and port
+	hostNPort := strings.Split(hostNPorts[0], ":")
 	cli, err := redis.Dial("tcp", hostNPort[0]+":"+hostNPort[1])
 	if err != nil {
 		panic(err)
 	}
+
+	//select a redis db
+	_, err = cli.Do("SELECT", db)
+	if err != nil {
+		panic(err)
+	}
+
+	//typecast to redisconn
 	return &RedisConn{cli}, nil
 }
 
@@ -52,27 +69,38 @@ type Redis struct {
 	db       int
 }
 
-func (r *Redis) SetDefaults(extraParams map[string]string) {
+func (r *Redis) SetDefaults() {
 	if len(r.Settings.HostAndPorts) == 0 {
 		r.Settings.HostAndPorts = DefaultIpAndHost
 	}
+	//this is poolsize
 	if r.Settings.Capacity == 0 {
 		r.Settings.Capacity = PoolSize
 	}
+	//maxcapacity of the pool
 	if r.Settings.MaxCapacity == 0 {
 		r.Settings.MaxCapacity = PoolSize
 	}
+	//pool timeout
 	r.Settings.Timeout = time.Minute
-	r.pool = NewPool(Connect, r.Settings)
-	select_db, ok := extraParams["db"]
+
+	//select a particular db in redis
+	db, ok := r.Settings.Options["db"]
 	if !ok {
-		select_db = 0
+		db = "0"
 	}
-	r.db = int(select_db)
+	select_db, err := strconv.Atoi(db)
+	if err != nil {
+		panic("From Redis: select db is not a valid string")
+	}
+	r.db = select_db
+
+	//create a pool finally
+	r.pool = NewPool(Connect, r, r.Settings)
 }
 
 //Alias to SetDefaults
-func (r *Redis) Configure(settings PoolSettings, extraParams map[string]string) {
+func (r *Redis) Configure(settings PoolSettings) {
 	r.Settings = settings
 	r.SetDefaults()
 }
