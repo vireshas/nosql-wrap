@@ -15,25 +15,32 @@ type Mantle interface {
 	Execute(cmd string, args ...interface{}) (interface{}, error)
 }
 
+//this struct is exported
 type Orm struct {
-	Driver       string
+	//redis|memcache|cassandra
+	Driver string
+	//arrays of ip:port,ip:port
 	HostAndPorts []string
-	Capacity     int
+	//pool size
+	Capacity int
+	//any other options thats needed for creating a connection
+	Options map[string]string
 }
 
-func (o *Orm) Get(extraParams map[string]string) Mantle {
-	genericPoolSettings := mantle.PoolSettings{
+func (o *Orm) New() Mantle {
+	poolSettings := mantle.PoolSettings{
 		HostAndPorts: o.HostAndPorts,
 		Capacity:     o.Capacity,
-		MaxCapacity:  o.Capacity}
+		MaxCapacity:  o.Capacity,
+		Options:      o.Options}
 
 	if o.Driver == "memcache" {
 		redis := &mantle.Redis{}
-		redis.Configure(genericPoolSettings, extraParams)
-		return Mantle(redis)
+		redis.Configure(poolSettings)
+		return redis
 	} else {
 		redis := &mantle.Redis{}
-		redis.Configure(genericPoolSettings, extraParams)
-		return Mantle(redis)
+		redis.Configure(poolSettings)
+		return redis
 	}
 }
