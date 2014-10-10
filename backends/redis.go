@@ -11,29 +11,17 @@ import (
 var PoolSize = 10
 var DefaultIpAndHost = []string{"localhost:6379"}
 
-type Redis struct {
-	Settings PoolSettings
-	pool     *ResourcePool
-}
-
-func (r *Redis) SetDefaults() {
-	if len(r.Settings.HostAndPorts) == 0 {
-		r.Settings.HostAndPorts = DefaultIpAndHost
+//This method creates a redis connection
+func Connect(IpAndHost []string) (pools.Resource, error) {
+	if len(IpAndHost) > 1 {
+		panic("we can only connect to 1 server at the moment")
 	}
-	if r.Settings.Capacity == 0 {
-		r.Settings.Capacity = PoolSize
+	hostNPort := strings.Split(IpAndHost[0], ":")
+	cli, err := redis.Dial("tcp", hostNPort[0]+":"+hostNPort[1])
+	if err != nil {
+		panic(err)
 	}
-	if r.Settings.MaxCapacity == 0 {
-		r.Settings.MaxCapacity = PoolSize
-	}
-	r.Settings.Timeout = time.Minute
-	r.pool = NewPool(Connect, r.Settings)
-}
-
-//Alias to SetDefaults
-func (r *Redis) Configure(settings PoolSettings) {
-	r.Settings = settings
-	r.SetDefaults()
+	return &RedisConn{cli}, nil
 }
 
 //Wrapping redis connection
@@ -58,17 +46,35 @@ func (r *Redis) PutClient(c *RedisConn) {
 	r.pool.PutConn(c)
 }
 
-//This method creates a redis connection
-func Connect(IpAndHost []string) (pools.Resource, error) {
-	if len(IpAndHost) > 1 {
-		panic("we can only connect to 1 server at the moment")
+type Redis struct {
+	Settings PoolSettings
+	pool     *ResourcePool
+	db       int
+}
+
+func (r *Redis) SetDefaults(extraParams map[string]string) {
+	if len(r.Settings.HostAndPorts) == 0 {
+		r.Settings.HostAndPorts = DefaultIpAndHost
 	}
-	hostNPort := strings.Split(IpAndHost[0], ":")
-	cli, err := redis.Dial("tcp", hostNPort[0]+":"+hostNPort[1])
-	if err != nil {
-		panic(err)
+	if r.Settings.Capacity == 0 {
+		r.Settings.Capacity = PoolSize
 	}
-	return &RedisConn{cli}, nil
+	if r.Settings.MaxCapacity == 0 {
+		r.Settings.MaxCapacity = PoolSize
+	}
+	r.Settings.Timeout = time.Minute
+	r.pool = NewPool(Connect, r.Settings)
+	select_db, ok := extraParams["db"]
+	if !ok {
+		select_db = 0
+	}
+	r.db = int(select_db)
+}
+
+//Alias to SetDefaults
+func (r *Redis) Configure(settings PoolSettings, extraParams map[string]string) {
+	r.Settings = settings
+	r.SetDefaults()
 }
 
 //Generic method to execute any redis call
