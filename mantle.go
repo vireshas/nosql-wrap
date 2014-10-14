@@ -1,7 +1,7 @@
 package mantle
 
 import (
-	"github.com/vireshas/mantle/backends"
+	"github.com/goibibo/mantle/backends"
 )
 
 type Mantle interface {
