@@ -21,20 +21,19 @@ type Orm struct {
 	Capacity     int
 }
 
-func (o *Orm) Get() Mantle {
-
-	poolSettings := mantle.PoolSettings{
+func (o *Orm) Get(extraParams map[string]string) Mantle {
+	genericPoolSettings := mantle.PoolSettings{
 		HostAndPorts: o.HostAndPorts,
 		Capacity:     o.Capacity,
 		MaxCapacity:  o.Capacity}
 
 	if o.Driver == "memcache" {
 		redis := &mantle.Redis{}
-		redis.Configure(poolSettings)
+		redis.Configure(genericPoolSettings, extraParams)
 		return Mantle(redis)
 	} else {
 		redis := &mantle.Redis{}
-		redis.Configure(poolSettings)
+		redis.Configure(genericPoolSettings, extraParams)
 		return Mantle(redis)
 	}
 }
