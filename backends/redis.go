@@ -3,6 +3,7 @@ package mantle
 import (
 	"github.com/garyburd/redigo/redis"
 	"github.com/youtube/vitess/go/pools"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -11,29 +12,33 @@ import (
 var PoolSize = 10
 var DefaultIpAndHost = []string{"localhost:6379"}
 
-type Redis struct {
-	Settings PoolSettings
-	pool     *ResourcePool
-}
+//This method creates a redis connection
+func Connect(Instance interface{}) (pools.Resource, error) {
+	//we need to read ip and db from this struct
+	redis_struct := Instance.(*Redis)
+	hostNPorts := redis_struct.Settings.HostAndPorts
+	db := redis_struct.db
 
-func (r *Redis) SetDefaults() {
-	if len(r.Settings.HostAndPorts) == 0 {
-		r.Settings.HostAndPorts = DefaultIpAndHost
+	//panic is more than 1 ip is given
+	if len(hostNPorts) > 1 {
+		panic("we can only connect to 1 server at the moment")
 	}
-	if r.Settings.Capacity == 0 {
-		r.Settings.Capacity = PoolSize
-	}
-	if r.Settings.MaxCapacity == 0 {
-		r.Settings.MaxCapacity = PoolSize
-	}
-	r.Settings.Timeout = time.Minute
-	r.pool = NewPool(Connect, r.Settings)
-}
 
-//Alias to SetDefaults
-func (r *Redis) Configure(settings PoolSettings) {
-	r.Settings = settings
-	r.SetDefaults()
+	//dial host and port
+	hostNPort := strings.Split(hostNPorts[0], ":")
+	cli, err := redis.Dial("tcp", hostNPort[0]+":"+hostNPort[1])
+	if err != nil {
+		panic(err)
+	}
+
+	//select a redis db
+	_, err = cli.Do("SELECT", db)
+	if err != nil {
+		panic(err)
+	}
+
+	//typecast to redisconn
+	return &RedisConn{cli}, nil
 }
 
 //Wrapping redis connection
@@ -58,17 +63,46 @@ func (r *Redis) PutClient(c *RedisConn) {
 	r.pool.PutConn(c)
 }
 
-//This method creates a redis connection
-func Connect(IpAndHost []string) (pools.Resource, error) {
-	if len(IpAndHost) > 1 {
-		panic("we can only connect to 1 server at the moment")
+type Redis struct {
+	Settings PoolSettings
+	pool     *ResourcePool
+	db       int
+}
+
+func (r *Redis) SetDefaults() {
+	if len(r.Settings.HostAndPorts) == 0 {
+		r.Settings.HostAndPorts = DefaultIpAndHost
 	}
-	hostNPort := strings.Split(IpAndHost[0], ":")
-	cli, err := redis.Dial("tcp", hostNPort[0]+":"+hostNPort[1])
+	//this is poolsize
+	if r.Settings.Capacity == 0 {
+		r.Settings.Capacity = PoolSize
+	}
+	//maxcapacity of the pool
+	if r.Settings.MaxCapacity == 0 {
+		r.Settings.MaxCapacity = PoolSize
+	}
+	//pool timeout
+	r.Settings.Timeout = time.Minute
+
+	//select a particular db in redis
+	db, ok := r.Settings.Options["db"]
+	if !ok {
+		db = "0"
+	}
+	select_db, err := strconv.Atoi(db)
 	if err != nil {
-		panic(err)
+		panic("From Redis: select db is not a valid string")
 	}
-	return &RedisConn{cli}, nil
+	r.db = select_db
+
+	//create a pool finally
+	r.pool = NewPool(Connect, r, r.Settings)
+}
+
+//Alias to SetDefaults
+func (r *Redis) Configure(settings PoolSettings) {
+	r.Settings = settings
+	r.SetDefaults()
 }
 
 //Generic method to execute any redis call
