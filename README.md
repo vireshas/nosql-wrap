@@ -16,12 +16,24 @@ Go wrapper for nosql dbs.
         )
 
         func main(){
+                //sample data
                 keyValue := map[string]interface{}{"key1":"val1", "key2":"val2", "key3":"val3"}
+                //extra params to be passed to connection
+                options := map[string]string{"db":"1"}
                 hostNPort := []string{"localhost:6379"}
+
                 orm := mantle.Orm{Driver: "redis", HostAndPorts: hostNPort}
+
+                //selecting a particular db
+                orm := mantle.Orm{Driver: "redis", HostAndPorts: hostNPort, Options: options}
+
                 //default "localhost:6379 is used when hostAndPort is not passed"
                 //orm := mantle.Orm{Driver: "redis"}
-                connection := orm.Get()
+
+                //this connects to redis at localhost:6379 by default
+                //orm := mantle.Orm{}
+
+                connection := orm.New()
 
                 fmt.Println(connection.Set("key", "value2")) //output: true
                 fmt.Println(connection.Get("key"))           //value2
