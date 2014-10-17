@@ -13,8 +13,8 @@ type PoolSettings struct {
 	Timeout      time.Duration
 }
 
-func (rp *ResourcePool) GetConn() (pools.Resource, error) {
-	resource, err := rp.pool.Get()
+func (rp *ResourcePool) GetConn(to time.Duration) (pools.Resource, error) {
+	resource, err := rp.pool.Get(to)
 	if err != nil {
 		return nil, err
 	}
