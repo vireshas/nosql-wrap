@@ -35,12 +35,14 @@ func (o *Orm) New() Mantle {
 		Options:      o.Options}
 
 	if o.Driver == "memcache" {
-		redis := &mantle.Redis{}
-		redis.Configure(poolSettings)
-		return redis
+		return RedisConns(poolSettings)
 	} else {
-		redis := &mantle.Redis{}
-		redis.Configure(poolSettings)
-		return redis
+		return RedisConns(poolSettings)
 	}
+}
+
+func RedisConns(settings mantle.PoolSettings) *mantle.Redis {
+	redis := &mantle.Redis{}
+	redis.Configure(settings)
+	return redis
 }
