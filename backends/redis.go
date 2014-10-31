@@ -52,7 +52,7 @@ func (r *RedisConn) Close() {
 }
 
 func (r *Redis) GetClient() (*RedisConn, error) {
-	connection, err := r.pool.GetConn()
+	connection, err := r.pool.GetConn(r.Settings.Timeout)
 	if err != nil {
 		return nil, err
 	}
