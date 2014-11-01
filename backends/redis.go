@@ -11,7 +11,7 @@ import (
 //cant make these guys const as []string is not allowed in consts
 
 //default pool size
-var PoolSize = 10
+var RedisPoolSize = 10
 
 //default host:port to connect
 var DefaultIpAndHost = []string{"localhost:6379"}
@@ -98,11 +98,11 @@ func (r *Redis) SetDefaults() {
 	}
 	//this is poolsize
 	if r.Settings.Capacity == 0 {
-		r.Settings.Capacity = PoolSize
+		r.Settings.Capacity = RedisPoolSize
 	}
 	//maxcapacity of the pool
 	if r.Settings.MaxCapacity == 0 {
-		r.Settings.MaxCapacity = PoolSize
+		r.Settings.MaxCapacity = RedisPoolSize
 	}
 	//pool timeout
 	r.Settings.Timeout = time.Minute
