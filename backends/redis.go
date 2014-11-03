@@ -14,7 +14,7 @@ import (
 var RedisPoolSize = 10
 
 //default host:port to connect
-var DefaultIpAndHost = []string{"localhost:6379"}
+var DefaultRedisConfig = []string{"localhost:6379"}
 
 /*
  * This method creates a redis connection
@@ -94,7 +94,7 @@ type Redis struct {
 //Add default settings if they are missing
 func (r *Redis) SetDefaults() {
 	if len(r.Settings.HostAndPorts) == 0 {
-		r.Settings.HostAndPorts = DefaultIpAndHost
+		r.Settings.HostAndPorts = DefaultRedisConfig
 	}
 	//this is poolsize
 	if r.Settings.Capacity == 0 {
