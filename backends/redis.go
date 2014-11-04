@@ -24,7 +24,7 @@ var DefaultRedisConfig = []string{"localhost:6379"}
                Connect needs some params like db, hostAndPorts
                These params are read from this instance rederence
 */
-func Connect(Instance interface{}) (pools.Resource, error) {
+func CreateRedisConnection(Instance interface{}) (pools.Resource, error) {
 	//converting interface Redis struct type
 	redisInstance := Instance.(*Redis)
 	//this is a string of type "localhost:6379"
@@ -119,7 +119,7 @@ func (r *Redis) SetDefaults() {
 	r.db = select_db
 
 	//create a pool finally
-	r.pool = NewPool(Connect, r, r.Settings)
+	r.pool = NewPool(CreateRedisConnection, r, r.Settings)
 }
 
 func (r *Redis) Configure(settings PoolSettings) {
