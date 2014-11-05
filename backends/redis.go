@@ -2,7 +2,7 @@ package mantle
 
 import (
 	"github.com/garyburd/redigo/redis"
-	"github.com/youtube/vitess/go/pools"
+	"github.com/vireshas/minimal_vitess_pool/pools"
 	"strconv"
 	"strings"
 	"time"
