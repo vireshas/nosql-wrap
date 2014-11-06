@@ -4,14 +4,14 @@ Mantle
 Go wrapper for nosql dbs.
 
 ####Get the package:
-        go get github.com/vireshas/mantle
+        go get github.com/goibibo/mantle
         
 ####Code:
         package main
 
         import (
                 "fmt"
-                "github.com/vireshas/mantle"
+                "github.com/goibibo/mantle"
                 "time"
         )
 
