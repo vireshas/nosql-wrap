@@ -4,6 +4,7 @@ import (
 	"github.com/goibibo/mantle/backends"
 )
 
+//only strings are supported
 type Mantle interface {
 	Get(key string) string
 	Set(key string, value interface{}) bool
@@ -13,6 +14,23 @@ type Mantle interface {
 	MSet(keyValMap map[string]interface{}) bool
 	Expire(key string, duration int) bool
 	Execute(cmd string, args ...interface{}) (interface{}, error)
+}
+
+//helper func
+func redisConns(settings mantle.PoolSettings) *mantle.Redis {
+	redis := &mantle.Redis{}
+	redis.Configure(settings)
+	return redis
+}
+
+//generic pool settings
+func getSettings(o *Orm) mantle.PoolSettings {
+	return mantle.PoolSettings{
+		HostAndPorts: o.HostAndPorts,
+		Capacity:     o.Capacity,
+		MaxCapacity:  o.Capacity,
+		Options:      o.Options}
+
 }
 
 //this struct is exported
@@ -27,22 +45,19 @@ type Orm struct {
 	Options map[string]string
 }
 
+//mantle is a wrapper for many nosql dbs
 func (o *Orm) New() Mantle {
-	poolSettings := mantle.PoolSettings{
-		HostAndPorts: o.HostAndPorts,
-		Capacity:     o.Capacity,
-		MaxCapacity:  o.Capacity,
-		Options:      o.Options}
-
+	settings := getSettings(o)
 	if o.Driver == "memcache" {
-		return RedisConns(poolSettings)
+		return redisConns(settings)
 	} else {
-		return RedisConns(poolSettings)
+		return redisConns(settings)
 	}
 }
 
-func RedisConns(settings mantle.PoolSettings) *mantle.Redis {
-	redis := &mantle.Redis{}
-	redis.Configure(settings)
-	return redis
+//override mantle and get a redis client
+func (o *Orm) GetRedisConn() (*mantle.RedisConn, error) {
+	settings := getSettings(o)
+	redisPool := redisConns(settings)
+	return redisPool.GetClient()
 }
