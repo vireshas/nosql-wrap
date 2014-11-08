@@ -11,7 +11,7 @@ import (
 var MemcachePoolSize = 10
 var DefaultMemcacheIpAndHost = []string{"localhost:11211"}
 
-func MConnect(Instance interface{}) (pools.Resource, error) {
+func CreateMemcacheConnection(Instance interface{}) (pools.Resource, error) {
 	mcInstance := Instance.(*Memcache)
 	hostNPorts := mcInstance.Settings.HostAndPorts
 	servers := strings.Join(hostNPorts, ",")
@@ -55,7 +55,7 @@ func (m *Memcache) SetDefaults() {
 		m.Settings.MaxCapacity = MemcachePoolSize
 	}
 	m.Settings.Timeout = time.Minute
-	m.pool = NewPool(MConnect, m, m.Settings)
+	m.pool = NewPool(CreateMemcacheConnection, m, m.Settings)
 }
 
 func (m *Memcache) Configure(settings PoolSettings) {
