@@ -49,10 +49,10 @@ func (m *Memcache) SetDefaults() {
 		m.Settings.HostAndPorts = DefaultMemcacheIpAndHost
 	}
 	if m.Settings.Capacity == 0 {
-		m.Settings.Capacity = PoolSize
+		m.Settings.Capacity = MemcachePoolSize
 	}
 	if m.Settings.MaxCapacity == 0 {
-		m.Settings.MaxCapacity = PoolSize
+		m.Settings.MaxCapacity = MemcachePoolSize
 	}
 	m.Settings.Timeout = time.Minute
 	m.pool = NewPool(MConnect, m, m.Settings)
