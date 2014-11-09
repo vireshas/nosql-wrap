@@ -16,14 +16,12 @@ var RedisPoolSize = 10
 //default host:port to connect
 var DefaultRedisConfig = []string{"localhost:6379"}
 
-/*
- * This method creates a redis connection
-   Connect is passed as a callback to pools
-   Params:
-     Instance: This is a reference to a struct redis instance
-               Connect needs some params like db, hostAndPorts
-               These params are read from this instance rederence
-*/
+//This method creates a redis connection
+//CreateRedisConnection is passed as a callback to pools
+//Instance:
+//  This is a reference to a struct redis instance
+//  Connect needs some params like db, hostAndPorts
+//  These params are read from this instance rederence
 func CreateRedisConnection(Instance interface{}) (pools.Resource, error) {
 	//converting interface Redis struct type
 	redisInstance := Instance.(*Redis)
@@ -54,13 +52,11 @@ func CreateRedisConnection(Instance interface{}) (pools.Resource, error) {
 	return &RedisConn{cli}, nil
 }
 
-/*
- * Wrapping redigo redis connection
-   Pool expects a Object which defines
-   Close() and doesn't return anything, but
-   redigo.Redis#Close() returns error, hence this wrapper
-   around redis.Conn
-*/
+// Wrapping redigo redis connection
+//   Pool expects a Object which defines
+//   Close() and doesn't return anything, but
+//   redigo.Redis#Close() returns error, hence this wrapper
+//   around redis.Conn
 type RedisConn struct {
 	redis.Conn
 }
