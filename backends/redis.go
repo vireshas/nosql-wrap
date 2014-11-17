@@ -9,23 +9,36 @@ import (
 )
 
 //cant make these guys const as []string is not allowed in consts
+
+//default pool size
 var PoolSize = 10
+
+//default host:port to connect
 var DefaultIpAndHost = []string{"localhost:6379"}
 
-//This method creates a redis connection
+/*
+ * This method creates a redis connection
+   Connect is passed as a callback to pools
+   Params:
+     Instance: This is a reference to a struct redis instance
+               Connect needs some params like db, hostAndPorts
+               These params are read from this instance rederence
+*/
 func Connect(Instance interface{}) (pools.Resource, error) {
-	//we need to read ip and db from this struct
-	redis_struct := Instance.(*Redis)
-	hostNPorts := redis_struct.Settings.HostAndPorts
-	db := redis_struct.db
+	//converting interface Redis struct type
+	redisInstance := Instance.(*Redis)
+	//this is a string of type "localhost:6379"
+	hostNPorts := redisInstance.Settings.HostAndPorts
+	//select db after dialing
+	db := redisInstance.db
 
 	//panic is more than 1 ip is given
 	if len(hostNPorts) > 1 {
 		panic("we can only connect to 1 server at the moment")
 	}
 
-	//dial host and port
 	hostNPort := strings.Split(hostNPorts[0], ":")
+	//dial host and port
 	cli, err := redis.Dial("tcp", hostNPort[0]+":"+hostNPort[1])
 	if err != nil {
 		panic(err)
@@ -37,11 +50,17 @@ func Connect(Instance interface{}) (pools.Resource, error) {
 		panic(err)
 	}
 
-	//typecast to redisconn
+	//typecast to RedisConn
 	return &RedisConn{cli}, nil
 }
 
-//Wrapping redis connection
+/*
+ * Wrapping redigo redis connection
+   Pool expects a Object which defines
+   Close() and doesn't return anything, but
+   redigo.Redis#Close() returns error, hence this wrapper
+   around redis.Conn
+*/
 type RedisConn struct {
 	redis.Conn
 }
@@ -51,6 +70,8 @@ func (r *RedisConn) Close() {
 	_ = r.Conn.Close()
 }
 
+//Gets a connection from pool and converts to RedisConn type
+//If all the connections are in use, timeout the present request after a minute
 func (r *Redis) GetClient() (*RedisConn, error) {
 	connection, err := r.pool.GetConn(r.Settings.Timeout)
 	if err != nil {
@@ -59,6 +80,7 @@ func (r *Redis) GetClient() (*RedisConn, error) {
 	return connection.(*RedisConn), nil
 }
 
+//Puts a connection back to pool
 func (r *Redis) PutClient(c *RedisConn) {
 	r.pool.PutConn(c)
 }
@@ -69,6 +91,7 @@ type Redis struct {
 	db       int
 }
 
+//Add default settings if they are missing
 func (r *Redis) SetDefaults() {
 	if len(r.Settings.HostAndPorts) == 0 {
 		r.Settings.HostAndPorts = DefaultIpAndHost
@@ -99,13 +122,13 @@ func (r *Redis) SetDefaults() {
 	r.pool = NewPool(Connect, r, r.Settings)
 }
 
-//Alias to SetDefaults
 func (r *Redis) Configure(settings PoolSettings) {
 	r.Settings = settings
 	r.SetDefaults()
 }
 
 //Generic method to execute any redis call
+//Gets a client from pool, executes a cmd, puts conn back in pool
 func (r *Redis) Execute(cmd string, args ...interface{}) (interface{}, error) {
 	client, err := r.GetClient()
 	if err != nil {
