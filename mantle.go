@@ -23,6 +23,12 @@ func redisConns(settings mantle.PoolSettings) *mantle.Redis {
 	return redis
 }
 
+func memcacheConns(settings mantle.PoolSettings) *mantle.Memcache {
+	redis := &mantle.Memcache{}
+	redis.Configure(settings)
+	return redis
+}
+
 //generic pool settings
 func getSettings(o *Orm) mantle.PoolSettings {
 	return mantle.PoolSettings{
@@ -49,7 +55,7 @@ type Orm struct {
 func (o *Orm) New() Mantle {
 	settings := getSettings(o)
 	if o.Driver == "memcache" {
-		return redisConns(settings)
+		return memcacheConns(settings)
 	} else {
 		return redisConns(settings)
 	}
