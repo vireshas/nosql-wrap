@@ -76,7 +76,7 @@ func (m *Memcache) Get(key string) string {
 	it, erm := mc.Get(key)
 	m.PutClient(mc)
 	if erm != nil {
-		errMsg := fmt.Sprintf("Errom getting key %s", key)
+		errMsg := fmt.Sprintf("Error in getting key %s", key)
 		return errMsg
 	}
 	return string(it.Value)
